@@ -1,0 +1,1996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AICG · Enterprise AI Compliance Guardrail</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: oklch(0.17 0.012 250);
+      --surface: oklch(0.21 0.014 250);
+      --surface-2: oklch(0.24 0.014 250);
+      --fg: oklch(0.93 0.01 250);
+      --muted: oklch(0.68 0.02 250);
+      --border: oklch(0.32 0.016 250 / 0.9);
+      --border-subtle: oklch(1 0 0 / 0.08);
+      --accent: oklch(0.74 0.14 155);
+      --accent-dim: oklch(0.74 0.14 155 / 0.14);
+      --success: oklch(0.72 0.15 155);
+      --warn: oklch(0.82 0.14 85);
+      --danger: oklch(0.65 0.19 25);
+      --info: oklch(0.72 0.1 230);
+      --font-display: "IBM Plex Sans", system-ui, sans-serif;
+      --font-body: "IBM Plex Sans", system-ui, sans-serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --radius: 6px;
+      --sidebar-w: 240px;
+      --header-h: 56px;
+      --shadow: 0 1px 0 oklch(1 0 0 / 0.04), 0 8px 24px oklch(0 0 0 / 0.28);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font-body);
+      background: var(--bg);
+      color: var(--fg);
+      font-size: 14px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    a { color: inherit; text-decoration: none; }
+
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      grid-template-rows: var(--header-h) 1fr;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 16px 0 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: oklch(0.15 0.012 250);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 5px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .brand-mark svg { width: 16px; height: 16px; color: var(--accent); }
+    .brand-text { min-width: 0; }
+    .brand-name {
+      font-weight: 600;
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .header-center {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      min-width: 0;
+    }
+    .env-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .env-pill strong { color: var(--fg); font-weight: 500; }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 0 3px oklch(0.72 0.15 155 / 0.18);
+      flex-shrink: 0;
+    }
+    .dot.warn { background: var(--warn); box-shadow: 0 0 0 3px oklch(0.82 0.14 85 / 0.18); }
+    .dot.danger { background: var(--danger); box-shadow: 0 0 0 3px oklch(0.65 0.19 25 / 0.18); }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: var(--radius);
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--border-subtle);
+      color: var(--muted);
+    }
+    .btn-ghost:hover { color: var(--fg); background: var(--surface); }
+    .btn-primary {
+      background: var(--accent);
+      color: oklch(0.18 0.02 155);
+      font-weight: 600;
+    }
+    .btn-primary:hover { filter: brightness(1.06); }
+    .btn-danger {
+      background: oklch(0.65 0.19 25 / 0.15);
+      border-color: oklch(0.65 0.19 25 / 0.35);
+      color: var(--danger);
+    }
+    .btn-danger:hover { background: oklch(0.65 0.19 25 / 0.25); }
+    .btn svg { width: 14px; height: 14px; }
+    .menu-toggle {
+      display: none;
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      color: var(--muted);
+      align-items: center;
+      justify-content: center;
+    }
+    .menu-toggle svg { width: 18px; height: 18px; }
+
+    /* Sidebar */
+    .sidebar {
+      border-right: 1px solid var(--border-subtle);
+      background: oklch(0.155 0.012 250);
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      overflow-y: auto;
+    }
+    .nav-section-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 0 8px 6px;
+    }
+    .nav-list { display: flex; flex-direction: column; gap: 2px; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      text-align: left;
+      transition: background .12s, color .12s;
+    }
+    .nav-item:hover { background: var(--surface); color: var(--fg); }
+    .nav-item.active {
+      background: var(--accent-dim);
+      color: var(--fg);
+    }
+    .nav-item.active .nav-icon { color: var(--accent); }
+    .nav-icon {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      opacity: 0.9;
+    }
+    .nav-badge {
+      margin-left: auto;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: oklch(0.65 0.19 25 / 0.18);
+      color: var(--danger);
+      letter-spacing: 0.02em;
+    }
+    .sidebar-foot {
+      margin-top: auto;
+      padding: 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface);
+    }
+    .sidebar-foot .label {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .sidebar-foot code {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--fg);
+      word-break: break-all;
+    }
+
+    /* Main */
+    .main {
+      overflow: auto;
+      min-width: 0;
+      background:
+        radial-gradient(1200px 400px at 80% -10%, oklch(0.74 0.14 155 / 0.05), transparent 60%),
+        var(--bg);
+    }
+    .main-inner {
+      padding: 20px 22px 40px;
+      max-width: 1440px;
+    }
+    .page-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px 20px;
+      margin-bottom: 18px;
+    }
+    .page-title {
+      font-family: var(--font-display);
+      font-size: clamp(20px, 2.2vw, 26px);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    .page-desc {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      max-width: 56ch;
+    }
+    .demo-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+    .demo-chip span {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      background: var(--surface);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .page-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    /* Cards / grid */
+    .grid { display: grid; gap: 12px; }
+    .grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-main { grid-template-columns: 1.4fr 1fr; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      min-width: 0;
+    }
+    .card-pad { padding: 14px 16px; }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .card-body { padding: 14px 16px; }
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    .stat-value {
+      margin-top: 6px;
+      font-family: var(--font-mono);
+      font-size: 26px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+    .stat-meta {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .delta-up { color: var(--success); }
+    .delta-down { color: var(--danger); }
+    .delta-flat { color: var(--muted); }
+
+    /* Pipeline */
+    .pipeline {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      position: relative;
+    }
+    .pipe-step {
+      position: relative;
+      padding: 16px 14px;
+      border-right: 1px solid var(--border-subtle);
+    }
+    .pipe-step:last-child { border-right: none; }
+    .pipe-step.ok { background: oklch(0.72 0.15 155 / 0.04); }
+    .pipe-step.alert { background: oklch(0.65 0.19 25 / 0.06); }
+    .pipe-step.active { outline: 1px solid oklch(0.74 0.14 155 / 0.35); outline-offset: -1px; }
+    .pipe-idx {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .pipe-name {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      margin-bottom: 4px;
+    }
+    .pipe-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .pipe-latency {
+      margin-top: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* Tables */
+    .table-wrap { overflow-x: auto; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      text-align: left;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: oklch(1 0 0 / 0.02); }
+    .mono { font-family: var(--font-mono); font-size: 12px; }
+    .truncate {
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      height: 22px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .badge-ok {
+      background: oklch(0.72 0.15 155 / 0.12);
+      color: var(--success);
+      border-color: oklch(0.72 0.15 155 / 0.25);
+    }
+    .badge-warn {
+      background: oklch(0.82 0.14 85 / 0.12);
+      color: var(--warn);
+      border-color: oklch(0.82 0.14 85 / 0.25);
+    }
+    .badge-danger {
+      background: oklch(0.65 0.19 25 / 0.12);
+      color: var(--danger);
+      border-color: oklch(0.65 0.19 25 / 0.25);
+    }
+    .badge-info {
+      background: oklch(0.72 0.1 230 / 0.12);
+      color: var(--info);
+      border-color: oklch(0.72 0.1 230 / 0.25);
+    }
+    .badge-muted {
+      background: oklch(1 0 0 / 0.04);
+      color: var(--muted);
+      border-color: var(--border-subtle);
+    }
+
+    /* Charts */
+    .chart {
+      height: 160px;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      padding-top: 8px;
+    }
+    .bar {
+      flex: 1;
+      border-radius: 3px 3px 0 0;
+      background: oklch(0.74 0.14 155 / 0.35);
+      min-width: 0;
+      position: relative;
+      transition: height .3s ease;
+    }
+    .bar:hover { background: oklch(0.74 0.14 155 / 0.55); }
+    .bar.alert { background: oklch(0.65 0.19 25 / 0.45); }
+    .spark {
+      display: block;
+      width: 100%;
+      height: 48px;
+    }
+    .heatmap {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 3px;
+    }
+    .hm-cell {
+      aspect-ratio: 1;
+      border-radius: 2px;
+      background: oklch(0.74 0.14 155 / 0.08);
+    }
+
+    /* Logs */
+    .log-stream {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.55;
+      max-height: 320px;
+      overflow-y: auto;
+      background: oklch(0.14 0.01 250);
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      padding: 10px 12px;
+    }
+    .log-line { display: grid; grid-template-columns: 72px 56px 1fr; gap: 10px; padding: 2px 0; }
+    .log-ts { color: var(--muted); }
+    .log-lvl { font-weight: 500; }
+    .log-lvl.info { color: var(--info); }
+    .log-lvl.warn { color: var(--warn); }
+    .log-lvl.error { color: var(--danger); }
+    .log-lvl.ok { color: var(--success); }
+    .log-msg { color: var(--fg); word-break: break-word; }
+
+    /* Tabs / filters */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .tabs {
+      display: inline-flex;
+      padding: 3px;
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      gap: 2px;
+    }
+    .tab {
+      height: 28px;
+      padding: 0 12px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+    .tab:hover { color: var(--fg); }
+    .tab.active {
+      background: var(--surface-2);
+      color: var(--fg);
+      box-shadow: 0 1px 0 oklch(0 0 0 / 0.2);
+    }
+    .search {
+      height: 32px;
+      padding: 0 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface);
+      min-width: 180px;
+      font-size: 12px;
+      color: var(--fg);
+      outline: none;
+    }
+    .search:focus { border-color: oklch(0.74 0.14 155 / 0.45); }
+    .search::placeholder { color: var(--muted); }
+    .select {
+      height: 32px;
+      padding: 0 28px 0 10px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      background: var(--surface);
+      font-size: 12px;
+      color: var(--fg);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239aa3b2' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+    }
+
+    /* Merkle tree viz */
+    .merkle {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0 4px;
+    }
+    .merkle-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .mnode {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 6px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-2);
+      color: var(--muted);
+      min-width: 72px;
+      text-align: center;
+    }
+    .mnode.root {
+      border-color: oklch(0.74 0.14 155 / 0.45);
+      color: var(--fg);
+      background: var(--accent-dim);
+    }
+    .mnode.bad {
+      border-color: oklch(0.65 0.19 25 / 0.5);
+      color: var(--danger);
+      background: oklch(0.65 0.19 25 / 0.1);
+    }
+    .mnode.leaf { min-width: 56px; }
+
+    /* Modal / panel */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: oklch(0.1 0.01 250 / 0.72);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      width: min(520px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      box-shadow: 0 24px 64px oklch(0 0 0 / 0.5);
+    }
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .modal-title {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .modal-body { padding: 16px; }
+    .modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 12px 16px 16px;
+    }
+    .field { margin-bottom: 12px; }
+    .field label {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+    .field input, .field textarea, .field select {
+      width: 100%;
+      border-radius: var(--radius);
+      border: 1px solid var(--border-subtle);
+      background: var(--bg);
+      padding: 8px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+    .field textarea {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      min-height: 72px;
+      resize: vertical;
+    }
+    .field input:focus, .field textarea:focus, .field select:focus {
+      border-color: oklch(0.74 0.14 155 / 0.45);
+    }
+    .help { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* Attack sim */
+    .sim-track {
+      display: grid;
+      gap: 8px;
+    }
+    .sim-step {
+      display: grid;
+      grid-template-columns: 28px 1fr auto;
+      gap: 10px;
+      align-items: start;
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg);
+    }
+    .sim-step.done { border-color: oklch(0.72 0.15 155 / 0.3); }
+    .sim-step.fail { border-color: oklch(0.65 0.19 25 / 0.4); }
+    .sim-step.run { border-color: oklch(0.74 0.14 155 / 0.45); background: var(--accent-dim); }
+    .sim-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--surface-2);
+      color: var(--muted);
+    }
+    .sim-step.done .sim-num { background: oklch(0.72 0.15 155 / 0.2); color: var(--success); }
+    .sim-step.fail .sim-num { background: oklch(0.65 0.19 25 / 0.2); color: var(--danger); }
+    .sim-title { font-size: 13px; font-weight: 500; }
+    .sim-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    /* Architecture diagram */
+    .arch {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      font-size: 12px;
+    }
+    .arch-node {
+      padding: 10px 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      background: var(--bg);
+      text-align: center;
+    }
+    .arch-node strong { display: block; font-weight: 600; margin-bottom: 2px; }
+    .arch-node span { color: var(--muted); font-size: 11px; }
+    .arch-arrow {
+      text-align: center;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 0;
+      letter-spacing: 0.04em;
+    }
+    .arch-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .empty {
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .stack-y { display: flex; flex-direction: column; gap: 12px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .hidden { display: none !important; }
+
+    .toast-host {
+      position: fixed;
+      bottom: 18px;
+      right: 18px;
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: min(360px, calc(100vw - 32px));
+    }
+    .toast {
+      padding: 10px 14px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border-subtle);
+      box-shadow: var(--shadow);
+      font-size: 13px;
+      animation: slideIn .2s ease;
+    }
+    .toast.ok { border-color: oklch(0.72 0.15 155 / 0.35); }
+    .toast.err { border-color: oklch(0.65 0.19 25 / 0.4); }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: none; }
+    }
+
+    .kbd {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 1px 5px;
+      border-radius: 3px;
+      border: 1px solid var(--border-subtle);
+      color: var(--muted);
+      background: var(--bg);
+    }
+
+    /* Responsive */
+    @media (max-width: 1100px) {
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pipeline { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .pipe-step:nth-child(2) { border-right: none; }
+      .pipe-step:nth-child(1),
+      .pipe-step:nth-child(2) { border-bottom: 1px solid var(--border-subtle); }
+      .grid-main { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 820px) {
+      .app {
+        grid-template-columns: 1fr;
+        grid-template-rows: var(--header-h) 1fr;
+      }
+      .sidebar {
+        position: fixed;
+        top: var(--header-h);
+        left: 0;
+        bottom: 0;
+        width: min(280px, 86vw);
+        z-index: 50;
+        transform: translateX(-105%);
+        transition: transform .2s ease;
+        box-shadow: 8px 0 32px oklch(0 0 0 / 0.4);
+      }
+      .sidebar.open { transform: none; }
+      .menu-toggle { display: inline-flex; }
+      .header-center { display: none; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .main-inner { padding: 14px 12px 32px; }
+      .stat-value { font-size: 22px; }
+      .arch-row { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .grid-4 { grid-template-columns: 1fr; }
+      .pipeline { grid-template-columns: 1fr; }
+      .pipe-step { border-right: none; border-bottom: 1px solid var(--border-subtle); }
+      .pipe-step:last-child { border-bottom: none; }
+      .page-actions { width: 100%; }
+      .page-actions .btn { flex: 1; }
+      .log-line { grid-template-columns: 1fr; gap: 2px; }
+      .brand-sub { display: none; }
+    }
+
+    .scrim {
+      display: none;
+      position: fixed;
+      inset: 0;
+      top: var(--header-h);
+      background: oklch(0 0 0 / 0.45);
+      z-index: 45;
+    }
+    .scrim.open { display: block; }
+  </style>
+</head>
+<body>
+  <div class="app" id="app" data-od-id="app-shell">
+    <header class="header" data-od-id="app-header">
+      <button class="menu-toggle" id="menuToggle" aria-label="Open navigation" data-od-id="menu-toggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="brand" data-od-id="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z"/>
+            <path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <div class="brand-name">AICG Console</div>
+          <div class="brand-sub">AI Compliance &amp; Poisoning Guardrail</div>
+        </div>
+      </div>
+      <div class="header-center">
+        <div class="env-pill" data-od-id="env-status">
+          <span class="dot" id="globalDot"></span>
+          <span>cluster · <strong id="clusterName">demo-eu-west-1</strong></span>
+          <span aria-hidden="true">·</span>
+          <span id="pipelineHealth">pipeline healthy</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-ghost" id="btnRefresh" data-od-id="btn-refresh" title="Refresh (R)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12a8 8 0 0 1 14-5M20 12a8 8 0 0 1-14 5"/><path d="M18 4v5h-5M6 20v-5h5"/></svg>
+          Refresh
+        </button>
+        <button class="btn btn-primary" id="btnAttack" data-od-id="btn-run-attack">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 3L4 14h7l-1 7 9-11h-7l1-7z"/></svg>
+          Run attack sim
+        </button>
+      </div>
+    </header>
+
+    <aside class="sidebar" id="sidebar" data-od-id="sidebar">
+      <div>
+        <div class="nav-section-label">Pipeline</div>
+        <nav class="nav-list" data-od-id="nav-pipeline">
+          <button class="nav-item active" data-view="overview" data-od-id="nav-overview">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Overview
+          </button>
+          <button class="nav-item" data-view="ingestion" data-od-id="nav-ingestion">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+            Ingestion
+          </button>
+          <button class="nav-item" data-view="attestation" data-od-id="nav-attestation">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+            Attestation
+          </button>
+          <button class="nav-item" data-view="poison" data-od-id="nav-poison">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
+            Poison detect
+            <span class="nav-badge" id="navAlertBadge">2</span>
+          </button>
+          <button class="nav-item" data-view="unlearn" data-od-id="nav-unlearn">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h11M4 12h16M4 17h9"/><path d="M17 4l3 3-3 3"/></svg>
+            Unlearning
+          </button>
+        </nav>
+      </div>
+      <div>
+        <div class="nav-section-label">Ops</div>
+        <nav class="nav-list" data-od-id="nav-ops">
+          <button class="nav-item" data-view="audit" data-od-id="nav-audit">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            Audit log
+          </button>
+          <button class="nav-item" data-view="attack" data-od-id="nav-attack">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l2.4 7.2H22l-6 4.8 2.3 7-6.3-4.6L5.7 21l2.3-7-6-4.8h7.6L12 2z"/></svg>
+            Attack sim
+          </button>
+          <button class="nav-item" data-view="architecture" data-od-id="nav-architecture">
+            <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="5" rx="1"/><rect x="13" y="10" width="8" height="11" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/></svg>
+            Architecture
+          </button>
+        </nav>
+      </div>
+      <div class="sidebar-foot" data-od-id="sidebar-build">
+        <div class="label">Build</div>
+        <code>aicg · portfolio demo</code>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="main" data-od-id="main">
+      <div class="main-inner">
+
+        <!-- OVERVIEW -->
+        <section id="view-overview" class="view" data-od-id="view-overview">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title" data-od-id="overview-title">Compliance control plane</h1>
+              <p class="page-desc">Independent middleware between the enterprise data lake and training env — lineage, poison detection, and targeted unlearning.</p>
+              <div class="demo-chip"><span>Demo data</span> Synthetic session for GitHub portfolio review</div>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost" data-goto="architecture" data-od-id="btn-view-arch">View architecture</button>
+              <button class="btn btn-primary" data-goto="attack" data-od-id="btn-sim-from-overview">Simulate poison</button>
+            </div>
+          </div>
+
+          <div class="grid grid-4" data-od-id="kpi-row">
+            <div class="card card-pad" data-od-id="kpi-lineage">
+              <div class="stat-label">Lineage integrity</div>
+              <div class="stat-value" id="kpiLineage">100%</div>
+              <div class="stat-meta"><span class="dot" style="width:6px;height:6px;box-shadow:none"></span> Merkle root verified</div>
+            </div>
+            <div class="card card-pad" data-od-id="kpi-batches">
+              <div class="stat-label">Batches attested</div>
+              <div class="stat-value" id="kpiBatches">1,284</div>
+              <div class="stat-meta delta-up">+42 this hour · demo</div>
+            </div>
+            <div class="card card-pad" data-od-id="kpi-poison">
+              <div class="stat-label">Poison flags open</div>
+              <div class="stat-value" id="kpiPoison">2</div>
+              <div class="stat-meta delta-flat">Spectral + influence</div>
+            </div>
+            <div class="card card-pad" data-od-id="kpi-unlearn">
+              <div class="stat-label">Unlearn jobs</div>
+              <div class="stat-value" id="kpiUnlearn">7</div>
+              <div class="stat-meta">3 running · NegGrad</div>
+            </div>
+          </div>
+
+          <div class="card mt-12" data-od-id="pipeline-card">
+            <div class="card-head">
+              <div class="card-title">Live pipeline</div>
+              <span class="badge badge-ok" id="pipelineBadge">All stages green</span>
+            </div>
+            <div class="pipeline" id="pipelineStrip">
+              <div class="pipe-step ok" data-od-id="pipe-ingest">
+                <div class="pipe-idx">01 · Ingest</div>
+                <div class="pipe-name">Data ingestion</div>
+                <div class="pipe-status"><span class="dot" style="width:6px;height:6px;box-shadow:none"></span> Streaming from S3</div>
+                <div class="pipe-latency">p50 42ms</div>
+              </div>
+              <div class="pipe-step ok" data-od-id="pipe-attest">
+                <div class="pipe-idx">02 · Attest</div>
+                <div class="pipe-name">Cryptographic attestation</div>
+                <div class="pipe-status"><span class="dot" style="width:6px;height:6px;box-shadow:none"></span> SHA-256 + signed root</div>
+                <div class="pipe-latency">p50 18ms</div>
+              </div>
+              <div class="pipe-step ok" data-od-id="pipe-detect">
+                <div class="pipe-idx">03 · Detect</div>
+                <div class="pipe-name">Anomaly &amp; poison</div>
+                <div class="pipe-status"><span class="dot" style="width:6px;height:6px;box-shadow:none"></span> Influence map hot</div>
+                <div class="pipe-latency">p50 210ms</div>
+              </div>
+              <div class="pipe-step ok" data-od-id="pipe-unlearn">
+                <div class="pipe-idx">04 · Unlearn</div>
+                <div class="pipe-name">Model unlearning</div>
+                <div class="pipe-status"><span class="dot" style="width:6px;height:6px;box-shadow:none"></span> UAM / NegGrad ready</div>
+                <div class="pipe-latency">epoch 2/2</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-main mt-12">
+            <div class="card" data-od-id="throughput-card">
+              <div class="card-head">
+                <div class="card-title">Ingestion throughput · last 24h</div>
+                <span class="mono" style="color:var(--muted);font-size:11px">chunks / min · demo</span>
+              </div>
+              <div class="card-body">
+                <div class="chart" id="throughputChart" aria-label="Throughput chart"></div>
+              </div>
+            </div>
+            <div class="card" data-od-id="recent-events-card">
+              <div class="card-head">
+                <div class="card-title">Recent compliance events</div>
+                <button class="btn btn-ghost" style="height:26px;font-size:11px" data-goto="audit">Full log</button>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th>Time</th><th>Event</th><th>Status</th></tr>
+                  </thead>
+                  <tbody id="recentEventsBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- INGESTION -->
+        <section id="view-ingestion" class="view hidden" data-od-id="view-ingestion">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Data ingestion</h1>
+              <p class="page-desc">Gateway intercepts lake objects, chunks them, and hands hashes to the attestation service over the event bus.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost" id="btnPauseIngest" data-od-id="btn-pause-ingest">Pause stream</button>
+              <button class="btn btn-primary" id="btnNewBatch" data-od-id="btn-new-batch">Ingest batch</button>
+            </div>
+          </div>
+          <div class="grid grid-3">
+            <div class="card card-pad"><div class="stat-label">Active sources</div><div class="stat-value">3</div><div class="stat-meta">s3 · gcs · kafka</div></div>
+            <div class="card card-pad"><div class="stat-label">Chunk size</div><div class="stat-value">256<span style="font-size:14px;color:var(--muted)"> KB</span></div><div class="stat-meta">fixed leaf payload</div></div>
+            <div class="card card-pad"><div class="stat-label">Queue depth</div><div class="stat-value" id="queueDepth">18</div><div class="stat-meta">RabbitMQ · aicg.ingest</div></div>
+          </div>
+          <div class="card mt-12">
+            <div class="card-head">
+              <div class="card-title">Ingest jobs</div>
+              <div class="toolbar" style="margin:0">
+                <input class="search" id="ingestSearch" placeholder="Filter URI…" data-od-id="ingest-search" />
+                <select class="select" id="ingestFilter" data-od-id="ingest-filter">
+                  <option value="all">All states</option>
+                  <option value="streaming">Streaming</option>
+                  <option value="queued">Queued</option>
+                  <option value="blocked">Blocked</option>
+                  <option value="done">Done</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Batch</th><th>Source URI</th><th>Chunks</th><th>Bytes</th><th>State</th><th>Age</th></tr>
+                </thead>
+                <tbody id="ingestTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ATTESTATION -->
+        <section id="view-attestation" class="view hidden" data-od-id="view-attestation">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Cryptographic attestation</h1>
+              <p class="page-desc">Per-chunk SHA-256 leaves fold into a Merkle tree; the root is signed so post-sign tampering fails validation instantly.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost" id="btnVerifyRoot" data-od-id="btn-verify-root">Re-verify root</button>
+              <button class="btn btn-primary" id="btnSignRoot" data-od-id="btn-sign-root">Sign latest root</button>
+            </div>
+          </div>
+          <div class="grid grid-main">
+            <div class="card" data-od-id="merkle-card">
+              <div class="card-head">
+                <div class="card-title">Merkle tree · batch <span class="mono" id="merkleBatchId">b-0x7f3a</span></div>
+                <span class="badge badge-ok" id="merkleStatus">Root valid</span>
+              </div>
+              <div class="card-body">
+                <div class="merkle" id="merkleViz"></div>
+                <div class="mt-12" style="display:grid;gap:8px">
+                  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                    <span class="stat-label">Root hash</span>
+                    <code class="mono" id="rootHash" style="font-size:11px;color:var(--fg);word-break:break-all">—</code>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+                    <span class="stat-label">Signature</span>
+                    <code class="mono" id="rootSig" style="font-size:11px;color:var(--muted);word-break:break-all">—</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="stack-y">
+              <div class="card card-pad" data-od-id="attest-stats">
+                <div class="stat-label">Attestation gateway</div>
+                <div class="stat-value" style="font-size:20px">Ed25519 · SHA-256</div>
+                <div class="stat-meta mt-12">Key id <code class="mono">aicg-signing-01</code></div>
+                <div class="stat-meta">Store: Merkle Tree Store (immutable)</div>
+              </div>
+              <div class="card" data-od-id="attest-history">
+                <div class="card-head"><div class="card-title">Recent roots</div></div>
+                <div class="table-wrap">
+                  <table>
+                    <thead><tr><th>Batch</th><th>Leaves</th><th>Result</th></tr></thead>
+                    <tbody id="rootsTable"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- POISON -->
+        <section id="view-poison" class="view hidden" data-od-id="view-poison">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Anomaly &amp; poisoning detection</h1>
+              <p class="page-desc">Spectral signatures and mini-batch gradient tracing map which documents move hidden-layer activations.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost" id="btnRescan" data-od-id="btn-rescan">Rescan window</button>
+              <button class="btn btn-danger" id="btnQuarantine" data-od-id="btn-quarantine">Quarantine selected</button>
+            </div>
+          </div>
+          <div class="grid grid-3">
+            <div class="card card-pad"><div class="stat-label">Influence samples</div><div class="stat-value">4.2k</div><div class="stat-meta">mini-batch gradient trace</div></div>
+            <div class="card card-pad"><div class="stat-label">Spectral score max</div><div class="stat-value" id="spectralMax">0.81</div><div class="stat-meta">threshold 0.72</div></div>
+            <div class="card card-pad"><div class="stat-label">Bias drift (demo)</div><div class="stat-value">+0.04</div><div class="stat-meta delta-flat">within band</div></div>
+          </div>
+          <div class="grid grid-main mt-12">
+            <div class="card" data-od-id="flags-card">
+              <div class="card-head">
+                <div class="card-title">Open flags</div>
+                <div class="tabs" id="flagTabs">
+                  <button class="tab active" data-flag="all">All</button>
+                  <button class="tab" data-flag="poison">Poison</button>
+                  <button class="tab" data-flag="drift">Drift</button>
+                </div>
+              </div>
+              <div class="table-wrap">
+                <table>
+                  <thead>
+                    <tr><th></th><th>Doc id</th><th>Signal</th><th>Score</th><th>Layer</th><th>Action</th></tr>
+                  </thead>
+                  <tbody id="flagsTable"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card" data-od-id="influence-card">
+              <div class="card-head">
+                <div class="card-title">Dynamic influence map</div>
+                <span class="mono" style="font-size:11px;color:var(--muted)">hidden · L2</span>
+              </div>
+              <div class="card-body">
+                <div class="heatmap" id="influenceHeat" aria-label="Influence heatmap"></div>
+                <p class="help mt-12">Brighter cells = higher gradient attribution to candidate forget set. Demo matrix only.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- UNLEARN -->
+        <section id="view-unlearn" class="view hidden" data-od-id="view-unlearn">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Model unlearning engine</h1>
+              <p class="page-desc">NegGrad / UAM strips a target point’s footprint from weights without a full retrain lifecycle.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-primary" id="btnStartUnlearn" data-od-id="btn-start-unlearn">Start NegGrad job</button>
+            </div>
+          </div>
+          <div class="grid grid-2">
+            <div class="card" data-od-id="unlearn-jobs">
+              <div class="card-head"><div class="card-title">Jobs</div></div>
+              <div class="table-wrap">
+                <table>
+                  <thead><tr><th>Job</th><th>Forget set</th><th>Epochs</th><th>Retain acc</th><th>State</th></tr></thead>
+                  <tbody id="unlearnTable"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card" data-od-id="unlearn-config">
+              <div class="card-head"><div class="card-title">Controller config</div></div>
+              <div class="card-body stack-y">
+                <div class="field">
+                  <label>Algorithm</label>
+                  <select class="select" id="unlearnAlgo" style="width:100%">
+                    <option>NegGrad (negative gradient)</option>
+                    <option>UAM (unlearning-aware min.)</option>
+                    <option>Gradient redirection</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Learning rate</label>
+                  <input type="text" id="unlearnLr" value="0.005" class="mono" />
+                </div>
+                <div class="field">
+                  <label>Epochs</label>
+                  <input type="number" id="unlearnEpochs" value="2" min="1" max="20" />
+                </div>
+                <div class="field">
+                  <label>Forget doc ids</label>
+                  <textarea id="forgetIds" placeholder="doc-…">doc-a91f
+doc-c02e</textarea>
+                  <div class="help">Interleaves retain-set alignment after forget ascent.</div>
+                </div>
+                <pre class="log-stream" id="unlearnConsole" style="max-height:160px" aria-live="polite"></pre>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- AUDIT -->
+        <section id="view-audit" class="view hidden" data-od-id="view-audit">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Compliance audit log</h1>
+              <p class="page-desc">Immutable trail of attestation, blocks, purges, and operator actions — what hiring panels expect to see in a real console.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-ghost" id="btnExportLog" data-od-id="btn-export-log">Export JSON</button>
+            </div>
+          </div>
+          <div class="toolbar">
+            <input class="search" id="auditSearch" placeholder="Search message or actor…" data-od-id="audit-search" />
+            <select class="select" id="auditLevel" data-od-id="audit-level">
+              <option value="all">All levels</option>
+              <option value="ok">OK</option>
+              <option value="info">Info</option>
+              <option value="warn">Warn</option>
+              <option value="error">Error</option>
+            </select>
+          </div>
+          <div class="card">
+            <div class="card-body" style="padding:12px">
+              <div class="log-stream" id="auditStream" data-od-id="audit-stream"></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ATTACK -->
+        <section id="view-attack" class="view hidden" data-od-id="view-attack">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">Adversarial attack scenario</h1>
+              <p class="page-desc">Inject a poisoned token into a signed batch, prove Merkle validation fails, block ingestion, and emit an alert — the repo test suite story, live.</p>
+            </div>
+            <div class="page-actions">
+              <button class="btn btn-danger" id="btnRunAttackFull" data-od-id="btn-run-attack-full">Inject poison &amp; block</button>
+            </div>
+          </div>
+          <div class="grid grid-main">
+            <div class="card" data-od-id="attack-steps-card">
+              <div class="card-head">
+                <div class="card-title">Simulation steps</div>
+                <span class="badge badge-muted" id="simState">Idle</span>
+              </div>
+              <div class="card-body">
+                <div class="sim-track" id="simTrack"></div>
+              </div>
+            </div>
+            <div class="stack-y">
+              <div class="card card-pad" data-od-id="attack-payload">
+                <div class="stat-label">Poison payload (demo)</div>
+                <code class="mono" style="display:block;margin-top:8px;font-size:12px;color:var(--danger);word-break:break-all">{{POISON_TOKEN::override_label=1}}</code>
+                <div class="help mt-12">Deliberately mutates chunk[3] after root was signed — root recompute must mismatch.</div>
+              </div>
+              <div class="card" data-od-id="attack-console-card">
+                <div class="card-head"><div class="card-title">Sim console</div></div>
+                <div class="card-body">
+                  <div class="log-stream" id="attackConsole" style="max-height:220px"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ARCHITECTURE -->
+        <section id="view-architecture" class="view hidden" data-od-id="view-architecture">
+          <div class="page-head">
+            <div>
+              <h1 class="page-title">System architecture</h1>
+              <p class="page-desc">Three microservices between the lake and PyTorch/Hugging Face training — dockerized, event-bus linked.</p>
+            </div>
+          </div>
+          <div class="grid grid-main">
+            <div class="card" data-od-id="arch-diagram">
+              <div class="card-head"><div class="card-title">Data path</div></div>
+              <div class="card-body">
+                <div class="arch">
+                  <div class="arch-node"><strong>Raw enterprise data</strong><span>S3 / GCS data lake</span></div>
+                  <div class="arch-arrow">▼ ingest · Kafka / RabbitMQ</div>
+                  <div class="arch-node"><strong>Data ingestion gateway</strong><span>Chunk · normalize · emit</span></div>
+                  <div class="arch-arrow">▼</div>
+                  <div class="arch-row">
+                    <div class="arch-node"><strong>Attestation gateway</strong><span>SHA-256 · Merkle · sign</span></div>
+                    <div class="arch-node"><strong>Merkle tree store</strong><span>Immutable root ledger</span></div>
+                  </div>
+                  <div class="arch-arrow">▼ validate</div>
+                  <div class="arch-row">
+                    <div class="arch-node"><strong>Poison detection</strong><span>Spectral · loss signals</span></div>
+                    <div class="arch-node"><strong>Influence mapping</strong><span>Gradient attribution</span></div>
+                  </div>
+                  <div class="arch-arrow">▼ forget set</div>
+                  <div class="arch-node"><strong>Unlearning controller</strong><span>NegGrad / UAM → compliant model</span></div>
+                  <div class="arch-arrow">▼</div>
+                  <div class="arch-node"><strong>Training environment</strong><span>PyTorch · Hugging Face</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="stack-y">
+              <div class="card card-pad" data-od-id="svc-1">
+                <div class="stat-label">Service 01</div>
+                <div style="font-weight:600;margin-top:4px;font-size:15px;letter-spacing:-0.01em">Attestation Gateway</div>
+                <p class="help mt-12">Intercepts files, builds Merkle tree, signs root. Post-sign mutation fails root validation.</p>
+              </div>
+              <div class="card card-pad" data-od-id="svc-2">
+                <div class="stat-label">Service 02</div>
+                <div style="font-weight:600;margin-top:4px;font-size:15px;letter-spacing:-0.01em">Influence Mapping Layer</div>
+                <p class="help mt-12">Mini-batch gradient tracing ties documents to hidden-layer activations during validation.</p>
+              </div>
+              <div class="card card-pad" data-od-id="svc-3">
+                <div class="stat-label">Service 03</div>
+                <div style="font-weight:600;margin-top:4px;font-size:15px;letter-spacing:-0.01em">Unlearning Controller</div>
+                <p class="help mt-12">Localized weight tuning removes a target footprint without multi-million-dollar full retrain.</p>
+              </div>
+              <div class="card card-pad" data-od-id="repo-hint">
+                <div class="stat-label">GitHub portfolio note</div>
+                <p class="help mt-12">Pair this UI with Dockerized services, a poison injection test suite, and the Python blueprint (Merkle + NegGrad) in the repo README.</p>
+                <p class="help" style="margin-top:8px">Shortcut: <span class="kbd">1</span>–<span class="kbd">8</span> views · <span class="kbd">R</span> refresh</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="overlay" id="unlearnModal" data-od-id="unlearn-modal">
+    <div class="modal" role="dialog" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <div class="modal-title" id="modalTitle">Confirm unlearning job</div>
+        <button class="btn btn-ghost" id="modalClose" style="width:32px;padding:0" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:13px;color:var(--muted);line-height:1.5">Runs localized NegGrad on the forget set, then interleaves retain-set alignment. Demo only — no real weights are modified.</p>
+        <div class="field mt-12">
+          <label>Job name</label>
+          <input id="jobName" value="unlearn-gdpr-purge" />
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-ghost" id="modalCancel">Cancel</button>
+        <button class="btn btn-primary" id="modalConfirm" data-od-id="modal-confirm-unlearn">Execute forget</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-host" id="toasts" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+        cluster: "demo-eu-west-1",
+        poisonFlags: 2
+      }/*EDITMODE-END*/;
+
+      // --- SHA-256 (Web Crypto) helpers for real Merkle demo ---
+      async function sha256Hex(str) {
+        const data = new TextEncoder().encode(str);
+        const buf = await crypto.subtle.digest("SHA-256", data);
+        return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, "0")).join("");
+      }
+      async function buildMerkle(leaves) {
+        if (!leaves.length) throw new Error("empty");
+        let level = [];
+        for (const L of leaves) level.push(await sha256Hex(L));
+        const tree = [level.slice()];
+        while (level.length > 1) {
+          const next = [];
+          for (let i = 0; i < level.length; i += 2) {
+            const left = level[i];
+            const right = level[i + 1] ?? level[i];
+            next.push(await sha256Hex(left + right));
+          }
+          level = next;
+          tree.push(level.slice());
+        }
+        return { root: level[0], tree, leaves };
+      }
+      function shortHash(h) {
+        return h ? h.slice(0, 6) + "…" + h.slice(-4) : "—";
+      }
+      function fakeSig(root) {
+        return "ed25519:" + (root || "").slice(0, 16) + "…" + (root || "").slice(-8);
+      }
+
+      // --- State ---
+      const state = {
+        view: "overview",
+        ingestPaused: false,
+        selectedFlags: new Set(),
+        flagFilter: "all",
+        ingestFilter: "all",
+        ingestQuery: "",
+        auditLevel: "all",
+        auditQuery: "",
+        attackRunning: false,
+        poisonOpen: TWEAK_DEFAULTS.poisonFlags,
+        batches: 1284,
+        lineage: 100,
+        merklePoisoned: false,
+        chunks: [
+          "enterprise_doc_001::policy",
+          "enterprise_doc_002::email",
+          "enterprise_doc_003::ticket",
+          "enterprise_doc_004::chat",
+          "enterprise_doc_005::wiki",
+          "enterprise_doc_006::log",
+          "enterprise_doc_007::pdf",
+          "enterprise_doc_008::csv"
+        ],
+        merkle: null,
+        jobs: [
+          { id: "ul-104", forget: "doc-a91f", epochs: "2/2", acc: "91.2%", state: "done" },
+          { id: "ul-105", forget: "doc-c02e", epochs: "1/2", acc: "90.8%", state: "running" },
+          { id: "ul-106", forget: "doc-11ab", epochs: "0/2", acc: "—", state: "queued" }
+        ],
+        flags: [
+          { id: "doc-a91f", type: "poison", score: 0.81, layer: "L2·h14", signal: "Spectral spike" },
+          { id: "doc-c02e", type: "poison", score: 0.76, layer: "L2·h03", signal: "Influence outlier" },
+          { id: "doc-88d1", type: "drift", score: 0.61, layer: "L1·h22", signal: "Bias drift" },
+          { id: "doc-12fc", type: "drift", score: 0.54, layer: "L3·h07", signal: "Loss residual" }
+        ],
+        ingest: [
+          { id: "b-0x7f3a", uri: "s3://lake/train/corpus/v12/", chunks: 4096, bytes: "1.0 GB", state: "streaming", age: "12s" },
+          { id: "b-0x7f2c", uri: "s3://lake/train/corpus/v11/", chunks: 3840, bytes: "960 MB", state: "done", age: "8m" },
+          { id: "b-0x7f19", uri: "gcs://aicg-raw/eu/chat/", chunks: 512, bytes: "128 MB", state: "queued", age: "1m" },
+          { id: "b-0x7f01", uri: "s3://lake/poison-sim/inject/", chunks: 64, bytes: "16 MB", state: "blocked", age: "22m" }
+        ],
+        roots: [],
+        events: [
+          { t: "14:02:11", ev: "Root signed b-0x7f3a", st: "ok" },
+          { t: "14:01:48", ev: "Influence map refresh", st: "info" },
+          { t: "13:58:02", ev: "Flag opened doc-a91f", st: "warn" },
+          { t: "13:44:19", ev: "Unlearn ul-104 complete", st: "ok" },
+          { t: "13:12:55", ev: "Batch b-0x7f01 blocked", st: "error" }
+        ],
+        audit: []
+      };
+
+      const views = ["overview","ingestion","attestation","poison","unlearn","audit","attack","architecture"];
+      const simSteps = [
+        { id: 1, title: "Ingest clean batch", desc: "Chunk lake object into 8 leaves" },
+        { id: 2, title: "Build & sign Merkle root", desc: "SHA-256 tree + Ed25519 signature" },
+        { id: 3, title: "Inject poison token", desc: "Mutate chunk[3] post-signature" },
+        { id: 4, title: "Recompute root", desc: "Root hash must diverge" },
+        { id: 5, title: "Block ingestion", desc: "Gateway rejects batch + alert" }
+      ];
+
+      // --- DOM ---
+      const $ = (s, r = document) => r.querySelector(s);
+      const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+      function toast(msg, kind = "ok") {
+        const el = document.createElement("div");
+        el.className = "toast " + kind;
+        el.textContent = msg;
+        $("#toasts").appendChild(el);
+        setTimeout(() => el.remove(), 3200);
+      }
+
+      function pushAudit(level, msg, actor = "system") {
+        const now = new Date();
+        const t = now.toTimeString().slice(0, 8);
+        state.audit.unshift({ t, level, msg, actor });
+        if (state.audit.length > 80) state.audit.pop();
+        if (state.view === "audit") renderAudit();
+      }
+
+      function setView(name) {
+        state.view = name;
+        views.forEach(v => {
+          const el = $("#view-" + v);
+          if (el) el.classList.toggle("hidden", v !== name);
+        });
+        $$(".nav-item").forEach(b => b.classList.toggle("active", b.dataset.view === name));
+        closeSidebar();
+        if (name === "attestation") renderMerkle();
+        if (name === "audit") renderAudit();
+        if (name === "attack") renderSim(0);
+      }
+
+      function openSidebar() {
+        $("#sidebar").classList.add("open");
+        $("#scrim").classList.add("open");
+      }
+      function closeSidebar() {
+        $("#sidebar").classList.remove("open");
+        $("#scrim").classList.remove("open");
+      }
+
+      function renderThroughput() {
+        const host = $("#throughputChart");
+        if (!host) return;
+        host.innerHTML = "";
+        const vals = [40,48,52,45,60,58,62,55,70,68,72,65,80,78,74,82,76,88,84,90,86,92,88,95];
+        const max = Math.max(...vals);
+        vals.forEach((v, i) => {
+          const b = document.createElement("div");
+          b.className = "bar" + (i === 18 ? " alert" : "");
+          b.style.height = Math.round((v / max) * 100) + "%";
+          b.title = v + " chunks/min";
+          host.appendChild(b);
+        });
+      }
+
+      function renderRecent() {
+        const body = $("#recentEventsBody");
+        body.innerHTML = state.events.map(e => {
+          const cls = e.st === "ok" ? "badge-ok" : e.st === "warn" ? "badge-warn" : e.st === "error" ? "badge-danger" : "badge-info";
+          const label = e.st === "ok" ? "OK" : e.st === "warn" ? "WARN" : e.st === "error" ? "BLOCK" : "INFO";
+          return `<tr><td class="mono">${e.t}</td><td>${e.ev}</td><td><span class="badge ${cls}">${label}</span></td></tr>`;
+        }).join("");
+      }
+
+      function renderIngest() {
+        const q = state.ingestQuery.toLowerCase();
+        const rows = state.ingest.filter(r => {
+          if (state.ingestFilter !== "all" && r.state !== state.ingestFilter) return false;
+          if (q && !r.uri.toLowerCase().includes(q) && !r.id.toLowerCase().includes(q)) return false;
+          return true;
+        });
+        $("#ingestTable").innerHTML = rows.map(r => {
+          const cls = r.state === "done" || r.state === "streaming" ? "badge-ok" : r.state === "blocked" ? "badge-danger" : "badge-muted";
+          return `<tr>
+            <td class="mono">${r.id}</td>
+            <td class="truncate mono" title="${r.uri}">${r.uri}</td>
+            <td class="mono">${r.chunks.toLocaleString()}</td>
+            <td class="mono">${r.bytes}</td>
+            <td><span class="badge ${cls}">${r.state}</span></td>
+            <td class="mono" style="color:var(--muted)">${r.age}</td>
+          </tr>`;
+        }).join("") || `<tr><td colspan="6" class="empty">No batches match filters</td></tr>`;
+      }
+
+      async function ensureMerkle(force = false) {
+        if (!state.merkle || force) {
+          state.merkle = await buildMerkle(state.chunks);
+          state.roots.unshift({
+            id: "b-0x7f3a",
+            leaves: state.chunks.length,
+            ok: !state.merklePoisoned
+          });
+          if (state.roots.length > 5) state.roots.pop();
+        }
+      }
+
+      async function renderMerkle() {
+        await ensureMerkle();
+        const m = state.merkle;
+        const viz = $("#merkleViz");
+        const levels = [...m.tree].reverse();
+        viz.innerHTML = levels.map((lvl, li) => {
+          const isRoot = li === 0;
+          return `<div class="merkle-row">${lvl.map((h, i) => {
+            const bad = state.merklePoisoned && isRoot;
+            const cls = ["mnode", isRoot ? "root" : "", li === levels.length - 1 ? "leaf" : "", bad ? "bad" : ""].filter(Boolean).join(" ");
+            return `<div class="${cls}" title="${h}">${shortHash(h)}</div>`;
+          }).join("")}</div>`;
+        }).join("");
+        $("#rootHash").textContent = m.root;
+        $("#rootSig").textContent = fakeSig(m.root);
+        const st = $("#merkleStatus");
+        if (state.merklePoisoned) {
+          st.className = "badge badge-danger";
+          st.textContent = "Root mismatch";
+        } else {
+          st.className = "badge badge-ok";
+          st.textContent = "Root valid";
+        }
+        $("#rootsTable").innerHTML = state.roots.map(r =>
+          `<tr><td class="mono">${r.id}</td><td class="mono">${r.leaves}</td><td><span class="badge ${r.ok ? "badge-ok" : "badge-danger"}">${r.ok ? "valid" : "failed"}</span></td></tr>`
+        ).join("");
+      }
+
+      function renderFlags() {
+        const rows = state.flags.filter(f => state.flagFilter === "all" || f.type === state.flagFilter);
+        $("#flagsTable").innerHTML = rows.map(f => {
+          const checked = state.selectedFlags.has(f.id) ? "checked" : "";
+          const cls = f.type === "poison" ? "badge-danger" : "badge-warn";
+          return `<tr>
+            <td><input type="checkbox" data-flag-id="${f.id}" ${checked} /></td>
+            <td class="mono">${f.id}</td>
+            <td><span class="badge ${cls}">${f.signal}</span></td>
+            <td class="mono">${f.score.toFixed(2)}</td>
+            <td class="mono" style="color:var(--muted)">${f.layer}</td>
+            <td><button class="btn btn-ghost" style="height:26px;font-size:11px" data-unlearn-doc="${f.id}">Unlearn</button></td>
+          </tr>`;
+        }).join("");
+        $("#flagsTable").querySelectorAll("input[type=checkbox]").forEach(cb => {
+          cb.addEventListener("change", () => {
+            if (cb.checked) state.selectedFlags.add(cb.dataset.flagId);
+            else state.selectedFlags.delete(cb.dataset.flagId);
+          });
+        });
+        $("#flagsTable").querySelectorAll("[data-unlearn-doc]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            $("#forgetIds").value = btn.dataset.unlearnDoc;
+            setView("unlearn");
+            toast("Forget set loaded: " + btn.dataset.unlearnDoc);
+          });
+        });
+      }
+
+      function renderHeat() {
+        const host = $("#influenceHeat");
+        host.innerHTML = "";
+        for (let i = 0; i < 48; i++) {
+          const cell = document.createElement("div");
+          cell.className = "hm-cell";
+          const hot = (i % 11 === 3) || (i % 7 === 0) || i === 19 || i === 27;
+          const a = hot ? (0.15 + (i % 5) * 0.12) : (0.04 + (i % 4) * 0.02);
+          cell.style.background = `oklch(0.74 0.14 155 / ${a.toFixed(2)})`;
+          host.appendChild(cell);
+        }
+      }
+
+      function renderUnlearn() {
+        $("#unlearnTable").innerHTML = state.jobs.map(j => {
+          const cls = j.state === "done" ? "badge-ok" : j.state === "running" ? "badge-info" : "badge-muted";
+          return `<tr>
+            <td class="mono">${j.id}</td>
+            <td class="mono">${j.forget}</td>
+            <td class="mono">${j.epochs}</td>
+            <td class="mono">${j.acc}</td>
+            <td><span class="badge ${cls}">${j.state}</span></td>
+          </tr>`;
+        }).join("");
+      }
+
+      function renderAudit() {
+        const q = state.auditQuery.toLowerCase();
+        const rows = state.audit.filter(a => {
+          if (state.auditLevel !== "all" && a.level !== state.auditLevel) return false;
+          if (q && !(a.msg + a.actor).toLowerCase().includes(q)) return false;
+          return true;
+        });
+        $("#auditStream").innerHTML = rows.map(a =>
+          `<div class="log-line"><span class="log-ts">${a.t}</span><span class="log-lvl ${a.level}">${a.level.toUpperCase()}</span><span class="log-msg">[${a.actor}] ${a.msg}</span></div>`
+        ).join("") || `<div class="empty">No log lines</div>`;
+      }
+
+      function renderSim(activeIdx) {
+        $("#simTrack").innerHTML = simSteps.map((s, i) => {
+          let cls = "sim-step";
+          if (activeIdx > i) cls += " done";
+          else if (activeIdx === i) cls += " run";
+          else if (activeIdx < 0 && i === 4) cls += " fail";
+          return `<div class="${cls}">
+            <div class="sim-num">${s.id}</div>
+            <div><div class="sim-title">${s.title}</div><div class="sim-desc">${s.desc}</div></div>
+            <div class="mono" style="font-size:11px;color:var(--muted)">${activeIdx > i ? "done" : activeIdx === i ? "run" : "—"}</div>
+          </div>`;
+        }).join("");
+      }
+
+      function updateKpis() {
+        $("#kpiLineage").textContent = state.lineage + "%";
+        $("#kpiBatches").textContent = state.batches.toLocaleString();
+        $("#kpiPoison").textContent = String(state.poisonOpen);
+        $("#kpiUnlearn").textContent = String(state.jobs.length);
+        $("#navAlertBadge").textContent = String(state.poisonOpen);
+        $("#navAlertBadge").style.display = state.poisonOpen ? "" : "none";
+        $("#spectralMax").textContent = state.poisonOpen ? "0.81" : "0.41";
+        const healthy = !state.merklePoisoned && state.poisonOpen < 3;
+        $("#pipelineHealth").textContent = healthy ? "pipeline healthy" : "pipeline degraded";
+        $("#globalDot").className = "dot" + (healthy ? "" : " warn");
+        const badge = $("#pipelineBadge");
+        if (state.merklePoisoned) {
+          badge.className = "badge badge-danger";
+          badge.textContent = "Attestation failure";
+          $$(".pipe-step")[1].classList.remove("ok");
+          $$(".pipe-step")[1].classList.add("alert");
+        } else {
+          badge.className = "badge badge-ok";
+          badge.textContent = "All stages green";
+          $$(".pipe-step").forEach(p => { p.classList.remove("alert"); p.classList.add("ok"); });
+        }
+      }
+
+      function appendConsole(el, level, msg) {
+        const t = new Date().toTimeString().slice(0, 8);
+        const line = document.createElement("div");
+        line.className = "log-line";
+        line.innerHTML = `<span class="log-ts">${t}</span><span class="log-lvl ${level}">${level.toUpperCase()}</span><span class="log-msg">${msg}</span>`;
+        el.prepend(line);
+      }
+
+      // --- Actions ---
+      async function runAttackSim() {
+        if (state.attackRunning) return;
+        state.attackRunning = true;
+        setView("attack");
+        const con = $("#attackConsole");
+        con.innerHTML = "";
+        $("#simState").textContent = "Running";
+        $("#simState").className = "badge badge-info";
+
+        const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+        renderSim(0);
+        appendConsole(con, "info", "Starting adversarial scenario (demo)");
+        await sleep(500);
+
+        renderSim(1);
+        appendConsole(con, "ok", "Built clean batch · 8 chunks");
+        state.chunks = [
+          "enterprise_doc_001::policy",
+          "enterprise_doc_002::email",
+          "enterprise_doc_003::ticket",
+          "enterprise_doc_004::chat",
+          "enterprise_doc_005::wiki",
+          "enterprise_doc_006::log",
+          "enterprise_doc_007::pdf",
+          "enterprise_doc_008::csv"
+        ];
+        state.merklePoisoned = false;
+        await ensureMerkle(true);
+        const cleanRoot = state.merkle.root;
+        appendConsole(con, "ok", "Root signed " + shortHash(cleanRoot));
+        pushAudit("ok", "Attack sim: clean root signed " + shortHash(cleanRoot), "attack-sim");
+        await sleep(700);
+
+        renderSim(2);
+        state.chunks[3] = "enterprise_doc_004::chat{{POISON_TOKEN::override_label=1}}";
+        appendConsole(con, "warn", "Injected poison into chunk[3]");
+        pushAudit("warn", "Poison token injected into chunk[3]", "attack-sim");
+        await sleep(600);
+
+        renderSim(3);
+        const poisoned = await buildMerkle(state.chunks);
+        appendConsole(con, "error", "Root recomputed " + shortHash(poisoned.root));
+        appendConsole(con, "error", "Mismatch vs signed " + shortHash(cleanRoot));
+        state.merklePoisoned = true;
+        state.merkle = poisoned;
+        state.lineage = 0;
+        await sleep(600);
+
+        renderSim(4);
+        appendConsole(con, "error", "INGEST BLOCKED · alert aicg.poison.merkle_fail");
+        pushAudit("error", "Ingestion blocked: Merkle root validation failed", "attestation-gateway");
+        state.events.unshift({ t: new Date().toTimeString().slice(0, 8), ev: "Poison inject blocked by Merkle", st: "error" });
+        if (state.events.length > 8) state.events.pop();
+        state.ingest.unshift({
+          id: "b-0x" + Math.floor(Math.random() * 0xffff).toString(16),
+          uri: "s3://lake/poison-sim/inject/",
+          chunks: 8,
+          bytes: "2 MB",
+          state: "blocked",
+          age: "now"
+        });
+        if (state.ingest.length > 8) state.ingest.pop();
+        state.poisonOpen = Math.max(state.poisonOpen, 1);
+        $("#simState").textContent = "Blocked";
+        $("#simState").className = "badge badge-danger";
+        updateKpis();
+        renderRecent();
+        renderIngest();
+        toast("Attack caught — ingestion blocked", "err");
+        state.attackRunning = false;
+      }
+
+      async function verifyRoot() {
+        await ensureMerkle(true);
+        if (state.merklePoisoned) {
+          toast("Root validation FAILED", "err");
+          pushAudit("error", "Manual re-verify failed for b-0x7f3a", "operator");
+        } else {
+          toast("Root validation OK");
+          pushAudit("ok", "Manual re-verify passed for b-0x7f3a", "operator");
+        }
+        renderMerkle();
+        updateKpis();
+      }
+
+      async function signRoot() {
+        state.merklePoisoned = false;
+        state.lineage = 100;
+        await ensureMerkle(true);
+        pushAudit("ok", "Root re-signed " + shortHash(state.merkle.root), "attestation-gateway");
+        toast("Root signed");
+        renderMerkle();
+        updateKpis();
+      }
+
+      function startUnlearn() {
+        $("#unlearnModal").classList.add("open");
+      }
+
+      function confirmUnlearn() {
+        $("#unlearnModal").classList.remove("open");
+        const name = $("#jobName").value || "unlearn-job";
+        const epochs = Number($("#unlearnEpochs").value) || 2;
+        const lr = $("#unlearnLr").value || "0.005";
+        const forget = ($("#forgetIds").value || "doc-unknown").trim().split(/\s+/)[0];
+        const id = "ul-" + (100 + state.jobs.length + 1);
+        state.jobs.unshift({ id, forget, epochs: "0/" + epochs, acc: "—", state: "running" });
+        renderUnlearn();
+        const con = $("#unlearnConsole");
+        con.innerHTML = "";
+        appendConsole(con, "info", `Job ${id} · lr=${lr} · algo=${$("#unlearnAlgo").value.split(" ")[0]}`);
+        pushAudit("info", `Unlearn started ${id} forget=${forget}`, "unlearn-controller");
+
+        let e = 0;
+        const tick = () => {
+          e++;
+          appendConsole(con, "ok", `Epoch ${e}/${epochs}: maximize loss on forget set`);
+          appendConsole(con, "ok", `Epoch ${e}/${epochs}: retain-set alignment step`);
+          const job = state.jobs.find(j => j.id === id);
+          if (job) {
+            job.epochs = e + "/" + epochs;
+            if (e >= epochs) {
+              job.state = "done";
+              job.acc = "91.0%";
+              appendConsole(con, "ok", "Targeted machine unlearning sequence complete");
+              pushAudit("ok", `Unlearn complete ${id} · ${name}`, "unlearn-controller");
+              toast("Unlearn job finished");
+              if (state.poisonOpen > 0) state.poisonOpen--;
+              updateKpis();
+            }
+            renderUnlearn();
+          }
+          if (e < epochs) setTimeout(tick, 700);
+        };
+        setTimeout(tick, 400);
+      }
+
+      function exportAudit() {
+        const blob = new Blob([JSON.stringify(state.audit, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "aicg-audit-demo.json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast("Exported audit JSON");
+      }
+
+      function seedAudit() {
+        [
+          ["ok", "Gateway online · aicg-attest:8080", "orchestrator"],
+          ["info", "Subscribed Kafka topic aicg.ingest", "ingestion"],
+          ["ok", "Loaded signing key aicg-signing-01", "attestation-gateway"],
+          ["warn", "Open poison flags: 2", "poison-detector"],
+          ["info", "Influence map warm · L2 window 4.2k", "influence-layer"],
+          ["ok", "Unlearn worker pool ready (NegGrad)", "unlearn-controller"]
+        ].forEach(([l, m, a]) => pushAudit(l, m, a));
+      }
+
+      // --- Wire ---
+      function bind() {
+        $$(".nav-item").forEach(b => b.addEventListener("click", () => setView(b.dataset.view)));
+        $$("[data-goto]").forEach(b => b.addEventListener("click", () => setView(b.dataset.goto)));
+        $("#menuToggle").addEventListener("click", openSidebar);
+        $("#scrim").addEventListener("click", closeSidebar);
+        $("#btnRefresh").addEventListener("click", () => {
+          updateKpis();
+          renderRecent();
+          toast("Refreshed demo metrics");
+          pushAudit("info", "Operator refresh", "operator");
+        });
+        $("#btnAttack").addEventListener("click", runAttackSim);
+        $("#btnRunAttackFull").addEventListener("click", runAttackSim);
+        $("#btnVerifyRoot").addEventListener("click", verifyRoot);
+        $("#btnSignRoot").addEventListener("click", signRoot);
+        $("#btnStartUnlearn").addEventListener("click", startUnlearn);
+        $("#modalClose").addEventListener("click", () => $("#unlearnModal").classList.remove("open"));
+        $("#modalCancel").addEventListener("click", () => $("#unlearnModal").classList.remove("open"));
+        $("#modalConfirm").addEventListener("click", confirmUnlearn);
+        $("#btnExportLog").addEventListener("click", exportAudit);
+        $("#btnPauseIngest").addEventListener("click", () => {
+          state.ingestPaused = !state.ingestPaused;
+          $("#btnPauseIngest").textContent = state.ingestPaused ? "Resume stream" : "Pause stream";
+          $("#queueDepth").textContent = state.ingestPaused ? "0" : "18";
+          toast(state.ingestPaused ? "Ingest paused" : "Ingest resumed");
+          pushAudit("info", state.ingestPaused ? "Ingest stream paused" : "Ingest stream resumed", "operator");
+        });
+        $("#btnNewBatch").addEventListener("click", () => {
+          const id = "b-0x" + Math.floor(Math.random() * 0xffff).toString(16);
+          state.ingest.unshift({
+            id, uri: "s3://lake/train/corpus/live/", chunks: 256 + Math.floor(Math.random() * 500),
+            bytes: "64 MB", state: "streaming", age: "now"
+          });
+          state.batches++;
+          renderIngest();
+          updateKpis();
+          pushAudit("ok", "Manual batch enqueued " + id, "operator");
+          toast("Batch enqueued " + id);
+        });
+        $("#btnRescan").addEventListener("click", () => {
+          toast("Rescan window scheduled");
+          pushAudit("info", "Poison rescan window opened", "poison-detector");
+        });
+        $("#btnQuarantine").addEventListener("click", () => {
+          if (!state.selectedFlags.size) {
+            toast("Select flags first", "err");
+            return;
+          }
+          const n = state.selectedFlags.size;
+          state.flags = state.flags.filter(f => !state.selectedFlags.has(f.id));
+          state.selectedFlags.clear();
+          state.poisonOpen = Math.max(0, state.poisonOpen - n);
+          renderFlags();
+          updateKpis();
+          pushAudit("warn", `Quarantined ${n} doc(s)`, "operator");
+          toast("Quarantined " + n + " document(s)");
+        });
+        $("#ingestSearch").addEventListener("input", e => { state.ingestQuery = e.target.value; renderIngest(); });
+        $("#ingestFilter").addEventListener("change", e => { state.ingestFilter = e.target.value; renderIngest(); });
+        $("#auditSearch").addEventListener("input", e => { state.auditQuery = e.target.value; renderAudit(); });
+        $("#auditLevel").addEventListener("change", e => { state.auditLevel = e.target.value; renderAudit(); });
+        $$("#flagTabs .tab").forEach(t => t.addEventListener("click", () => {
+          $$("#flagTabs .tab").forEach(x => x.classList.remove("active"));
+          t.classList.add("active");
+          state.flagFilter = t.dataset.flag;
+          renderFlags();
+        }));
+        document.addEventListener("keydown", e => {
+          if (e.target.matches("input,textarea,select")) return;
+          if (e.key === "r" || e.key === "R") $("#btnRefresh").click();
+          const map = { "1":"overview","2":"ingestion","3":"attestation","4":"poison","5":"unlearn","6":"audit","7":"attack","8":"architecture" };
+          if (map[e.key]) setView(map[e.key]);
+        });
+        $("#clusterName").textContent = TWEAK_DEFAULTS.cluster;
+      }
+
+      async function init() {
+        bind();
+        seedAudit();
+        renderThroughput();
+        renderRecent();
+        renderIngest();
+        renderFlags();
+        renderHeat();
+        renderUnlearn();
+        renderSim(0);
+        await ensureMerkle(true);
+        updateKpis();
+        pushAudit("ok", "AICG console session started (portfolio demo)", "console");
+      }
+
+      init();
+    })();
+  </script>
+</body>
+</html>
