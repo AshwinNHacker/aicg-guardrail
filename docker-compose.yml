@@ -1,0 +1,70 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: aicg-postgres
+    environment:
+      POSTGRES_DB: aicg
+      POSTGRES_USER: aicg
+      POSTGRES_PASSWORD: aicg
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./db/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aicg"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  kafka:
+    image: redpandadata/redpanda:v23.3.5
+    container_name: aicg-kafka
+    command:
+      - redpanda
+      - start
+      - --smp=1
+      - --memory=512M
+      - --overprovisioned
+      - --node-id=0
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://kafka:9092
+    ports:
+      - "9092:9092"
+
+  attestation-gateway:
+    build: ./services/attestation-gateway-python
+    ports:
+      - "8100:8100"
+
+  poisoning-detector:
+    build: ./services/poisoning-detector-python
+    ports:
+      - "8200:8200"
+
+  unlearning-controller:
+    build: ./services/unlearning-controller-python
+    ports:
+      - "8300:8300"
+
+  event-relay:
+    build: ./services/event-relay-go
+    environment:
+      KAFKA_BROKERS: kafka:9092
+      KAFKA_TOPIC: aicg-pipeline-events
+      POSTGRES_DSN: postgres://aicg:aicg@postgres:5432/aicg?sslmode=disable
+    depends_on:
+      - kafka
+      - postgres
+
+  dashboard:
+    build: ./dashboard
+    ports:
+      - "3200:3200"
+    environment:
+      VITE_ATTESTATION_API: http://localhost:8100
+      VITE_DETECTOR_API: http://localhost:8200
+      VITE_UNLEARNING_API: http://localhost:8300
+    depends_on:
+      - attestation-gateway
+      - poisoning-detector
+      - unlearning-controller

@@ -1,0 +1,151 @@
+:root {
+  color-scheme: dark;
+  --bg: #0a0d12;
+  --panel: #12161f;
+  --border: #1f2430;
+  --text: #ccd3de;
+  --accent: #7c8cf8;
+  --good: #3fb950;
+  --bad: #f85149;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+header h1 { margin: 0; color: var(--accent); }
+.subtitle { color: #7a8394; font-size: 13px; }
+
+main {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  max-width: 900px;
+}
+
+section h2 {
+  font-size: 14px;
+  color: #8b93a3;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 10px;
+}
+
+.hint {
+  font-size: 13px;
+  color: #7a8394;
+  margin: -4px 0 12px;
+}
+
+.status-row {
+  display: flex;
+  gap: 10px;
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.pill-up .dot { background: var(--good); }
+.pill-down .dot { background: var(--bad); }
+
+.run-btn {
+  background: var(--accent);
+  color: #0a0d12;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.run-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.sim-results {
+  list-style: none;
+  padding: 0;
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sim-results li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.sim-icon {
+  font-weight: 700;
+  width: 16px;
+}
+
+.sim-pass .sim-icon { color: var(--good); }
+.sim-block .sim-icon { color: var(--bad); }
+.sim-reason { color: #7a8394; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--panel);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+th, td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+th {
+  color: #8b93a3;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.mono { font-family: ui-monospace, monospace; }
+
+.empty {
+  color: #7a8394;
+  padding: 16px;
+  text-align: center;
+}
